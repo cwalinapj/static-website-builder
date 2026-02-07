@@ -1,0 +1,47 @@
+const CF_API = "https://api.cloudflare.com/client/v4";
+
+async function cfFetch(token, url, options = {}) {
+  const res = await fetch(CF_API + url, {
+    ...options,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+      ...(options.headers || {})
+    }
+  });
+  const data = await res.json();
+  if (!res.ok || data?.success === false) {
+    const msg = data?.errors?.[0]?.message || `Cloudflare API error: ${res.status}`;
+    throw new Error(msg);
+  }
+  return data;
+}
+
+export async function verifyToken(token) {
+  return cfFetch(token, "/user/tokens/verify", { method: "GET" });
+}
+
+export async function upsertDnsRecord(token, zoneId, record) {
+  const list = await cfFetch(
+    token,
+    `/zones/${zoneId}/dns_records?type=${encodeURIComponent(record.type)}&name=${encodeURIComponent(record.name)}`,
+    { method: "GET" }
+  );
+
+  const existing = list.result?.[0];
+  if (existing) {
+    return cfFetch(token, `/zones/${zoneId}/dns_records/${existing.id}`, {
+      method: "PUT",
+      body: JSON.stringify({ ...record })
+    });
+  }
+
+  return cfFetch(token, `/zones/${zoneId}/dns_records`, {
+    method: "POST",
+    body: JSON.stringify({ ...record })
+  });
+}
+
+export async function listPagesProjects(token, accountId) {
+  return cfFetch(token, `/accounts/${accountId}/pages/projects`, { method: "GET" });
+}
