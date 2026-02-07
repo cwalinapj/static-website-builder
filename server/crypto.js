@@ -1,7 +1,7 @@
 import crypto from "crypto";
 
 const MASTER = process.env.CF_TOKEN_MASTER_KEY;
-if (!MASTER) throw new Error("Missing CF_TOKEN_MASTER_KEY env var");
+if (!MASTER) throw new Error("Missing CF_TOKEN_MASTER_KEY environment variable");
 
 const MASTER_KEY = Buffer.from(MASTER, "base64"); // 32 bytes
 if (MASTER_KEY.length !== 32) {
