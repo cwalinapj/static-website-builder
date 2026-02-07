@@ -4,6 +4,9 @@ const MASTER = process.env.CF_TOKEN_MASTER_KEY;
 if (!MASTER) throw new Error("Missing CF_TOKEN_MASTER_KEY env var");
 
 const MASTER_KEY = Buffer.from(MASTER, "base64"); // 32 bytes
+if (MASTER_KEY.length !== 32) {
+  throw new Error("CF_TOKEN_MASTER_KEY must decode to 32 bytes");
+}
 
 export function encryptSecret(plaintext) {
   const iv = crypto.randomBytes(12); // GCM standard
@@ -15,6 +18,9 @@ export function encryptSecret(plaintext) {
 
 export function decryptSecret(encB64) {
   const raw = Buffer.from(encB64, "base64");
+  if (raw.length < 28) {
+    throw new Error("Invalid encrypted payload");
+  }
   const iv = raw.subarray(0, 12);
   const tag = raw.subarray(12, 28);
   const ciphertext = raw.subarray(28);
