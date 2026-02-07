@@ -339,6 +339,12 @@ export default function App() {
   const [serp, setSerp] = useState(null);
   const [winnerUrl, setWinnerUrl] = useState("");
   const [contact, setContact] = useState({ address: "", phone: "", cell: "", email: "" });
+  const [walletExtras, setWalletExtras] = useState({
+    membership: false,
+    referrals: false,
+    receipts: false,
+    cryptoPayments: false
+  });
 
   const [files, setFiles] = useState(null);
   const srcDoc = useMemo(() => buildSrcDoc(files), [files]);
@@ -351,6 +357,17 @@ export default function App() {
     domainChoice: "subdomain_free",
     emailChoice: "inbound_free"
   });
+
+  async function createWorkOrder(requestText) {
+    const r = await fetch("/api/work-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ requestText })
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || "Work order failed");
+    return data.workOrder;
+  }
 
   async function runSerp() {
     setBusy(true);
