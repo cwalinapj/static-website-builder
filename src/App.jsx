@@ -351,6 +351,12 @@ export default function App() {
     domainChoice: "subdomain_free",
     emailChoice: "inbound_free"
   });
+  const [walletExtras, setWalletExtras] = useState({
+    membership: false,
+    referrals: false,
+    receipts: false,
+    cryptoPayments: false
+  });
 
   async function runSerp() {
     setBusy(true);
@@ -418,6 +424,17 @@ export default function App() {
     } finally {
       setBusy(false);
     }
+  }
+
+  async function createWorkOrder(description) {
+    const r = await fetch("/api/work-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ description })
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || `Work order failed (status ${r.status})`);
+    return data;
   }
 
   return (
@@ -501,6 +518,79 @@ export default function App() {
                 <div style={{ marginTop: 14, display: "flex", gap: 10 }}>
                   <button style={btnGhost} onClick={() => alert("ZIP export not wired yet. Add later.")}>Download files</button>
                   <button style={btn} onClick={() => alert("Wallet auth not wired yet. Add later.")}>Open builder (wallet)</button>
+                </div>
+
+                <div style={{ marginTop: 14, ...card, padding: 16 }}>
+                  <div style={{ fontWeight: 900, marginBottom: 6 }}>Wallet Extras (optional)</div>
+                  <div style={{ color: "#6b7280", lineHeight: 1.5, marginBottom: 12 }}>
+                    Your wallet is used for secure login. If you want, we can also enable extra wallet features (paid add-ons handled by a worker).
+                  </div>
+
+                  <div style={{ display: "grid", gap: 10 }}>
+                    <label style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                      <input
+                        type="checkbox"
+                        checked={walletExtras.membership}
+                        onChange={(e) => setWalletExtras((w) => ({ ...w, membership: e.target.checked }))}
+                      />
+                      Membership / token-gated access (Paid)
+                    </label>
+
+                    <label style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                      <input
+                        type="checkbox"
+                        checked={walletExtras.referrals}
+                        onChange={(e) => setWalletExtras((w) => ({ ...w, referrals: e.target.checked }))}
+                      />
+                      Referral rewards (Paid)
+                    </label>
+
+                    <label style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                      <input
+                        type="checkbox"
+                        checked={walletExtras.receipts}
+                        onChange={(e) => setWalletExtras((w) => ({ ...w, receipts: e.target.checked }))}
+                      />
+                      On-chain receipts (Paid)
+                    </label>
+
+                    <label style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                      <input
+                        type="checkbox"
+                        checked={walletExtras.cryptoPayments}
+                        onChange={(e) => setWalletExtras((w) => ({ ...w, cryptoPayments: e.target.checked }))}
+                      />
+                      Accept crypto payments (Paid)
+                    </label>
+                  </div>
+
+                  <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 12 }}>
+                    <button
+                      style={btnGhost}
+                      onClick={() => alert("Saved locally (MVP). Next: persist to backend by project ID.")}
+                    >
+                      Save selections
+                    </button>
+
+                    <button
+                      style={btn}
+                      onClick={async () => {
+                        const selectedExtras = Object.entries(walletExtras).filter(([, v]) => v).map(([k]) => k);
+                        if (selectedExtras.length === 0) {
+                          alert("No wallet extras selected.");
+                          return;
+                        }
+                        try {
+                          await createWorkOrder(`Enable wallet extras: ${selectedExtras.join(", ")}`);
+                          alert("Work order created. (MVP)");
+                        } catch (e) {
+                          alert(e.message);
+                        }
+                      }}
+                    >
+                      Create paid add-on request
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
