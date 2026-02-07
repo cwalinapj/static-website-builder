@@ -32,6 +32,10 @@ export function decryptSecret(encB64) {
   const ciphertext = raw.subarray(28);
   const decipher = crypto.createDecipheriv("aes-256-gcm", MASTER_KEY, iv);
   decipher.setAuthTag(tag);
-  const plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
-  return plaintext.toString("utf8");
+  try {
+    const plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+    return plaintext.toString("utf8");
+  } catch (error) {
+    throw new Error("Invalid encrypted payload");
+  }
 }
