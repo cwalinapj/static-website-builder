@@ -508,6 +508,7 @@ export default function App() {
                   Static work is complete. Any non-static features (booking, payments, logins, databases, CRM, campaigns, etc.)
                   are paid worker add-ons.
                 </div>
+                <div style={{ color: "#6b7280", marginTop: 8 }}>Wallet is used for authentication only.</div>
 
                 <div style={{ marginTop: 12, display: "grid", gap: 10 }}>
                   <div><b>Delivery:</b> {finalize.deliveryHours} hours</div>
@@ -517,7 +518,7 @@ export default function App() {
 
                 <div style={{ marginTop: 14, display: "flex", gap: 10 }}>
                   <button style={btnGhost} onClick={() => alert("ZIP export not wired yet. Add later.")}>Download files</button>
-                  <button style={btn} onClick={() => alert("Wallet auth not wired yet. Add later.")}>Open builder (wallet)</button>
+                  <button style={btn} onClick={() => alert("Wallet auth not wired yet. Add later.")}>Open builder (MetaMask login)</button>
                 </div>
 
                 <div style={{ marginTop: 14, ...card, padding: 16 }}>
