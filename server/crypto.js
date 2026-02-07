@@ -1,32 +1,41 @@
 import crypto from "crypto";
 
-const key = process.env.TOKEN_SECRET
-  ? crypto.createHash("sha256").update(process.env.TOKEN_SECRET).digest()
-  : crypto.randomBytes(32);
-const IV_LENGTH = 12;
-const TAG_LENGTH = 16;
+const MASTER = process.env.CF_TOKEN_MASTER_KEY;
+if (!MASTER) throw new Error("Missing CF_TOKEN_MASTER_KEY environment variable");
 
-export function encryptSecret(value) {
-  if (typeof value !== "string") {
-    throw new TypeError("Secret must be a string");
-  }
-  const iv = crypto.randomBytes(IV_LENGTH);
-  const cipher = crypto.createCipheriv("aes-256-gcm", key, iv);
-  const encrypted = Buffer.concat([cipher.update(value, "utf8"), cipher.final()]);
-  const tag = cipher.getAuthTag();
-  return Buffer.concat([iv, tag, encrypted]).toString("base64");
+const MASTER_KEY = Buffer.from(MASTER, "base64"); // 32 bytes
+if (MASTER_KEY.length !== 32) {
+  throw new Error("CF_TOKEN_MASTER_KEY must decode to 32 bytes");
 }
 
-export function decryptSecret(payload) {
-  if (typeof payload !== "string") {
-    throw new TypeError("Encrypted secret must be a string");
+export function encryptSecret(plaintext) {
+  if (typeof plaintext !== "string") {
+    throw new Error("Plaintext must be a string");
   }
-  const data = Buffer.from(payload, "base64");
-  const iv = data.subarray(0, IV_LENGTH);
-  const tag = data.subarray(IV_LENGTH, IV_LENGTH + TAG_LENGTH);
-  const text = data.subarray(IV_LENGTH + TAG_LENGTH);
-  const decipher = crypto.createDecipheriv("aes-256-gcm", key, iv);
+  const iv = crypto.randomBytes(12); // GCM standard
+  const cipher = crypto.createCipheriv("aes-256-gcm", MASTER_KEY, iv);
+  const ciphertext = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()]);
+  const tag = cipher.getAuthTag();
+  return Buffer.concat([iv, tag, ciphertext]).toString("base64");
+}
+
+export function decryptSecret(encB64) {
+  if (typeof encB64 !== "string" || encB64.length === 0) {
+    throw new Error("Encrypted payload must be a non-empty base64 string");
+  }
+  const raw = Buffer.from(encB64, "base64");
+  if (raw.length < 28) {
+    throw new Error(`Invalid encrypted payload: expected at least 28 bytes, got ${raw.length}`);
+  }
+  const iv = raw.subarray(0, 12);
+  const tag = raw.subarray(12, 28);
+  const ciphertext = raw.subarray(28);
+  const decipher = crypto.createDecipheriv("aes-256-gcm", MASTER_KEY, iv);
   decipher.setAuthTag(tag);
-  const decrypted = Buffer.concat([decipher.update(text), decipher.final()]);
-  return decrypted.toString("utf8");
+  try {
+    const plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+    return plaintext.toString("utf8");
+  } catch (error) {
+    throw new Error("Invalid encrypted payload");
+  }
 }
