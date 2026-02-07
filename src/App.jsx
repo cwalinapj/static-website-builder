@@ -433,7 +433,7 @@ export default function App() {
       body: JSON.stringify({ description })
     });
     const data = await r.json();
-    if (!r.ok) throw new Error(data.error || "Work order failed");
+    if (!r.ok) throw new Error(data.error || `Work order failed (status ${r.status})`);
     return data;
   }
 
@@ -575,13 +575,13 @@ export default function App() {
                     <button
                       style={btn}
                       onClick={async () => {
-                        const selected = Object.entries(walletExtras).filter(([, v]) => v).map(([k]) => k);
-                        if (selected.length === 0) {
+                        const selectedExtras = Object.entries(walletExtras).filter(([, v]) => v).map(([k]) => k);
+                        if (selectedExtras.length === 0) {
                           alert("No wallet extras selected.");
                           return;
                         }
                         try {
-                          await createWorkOrder(`Enable wallet extras: ${selected.join(", ")}`);
+                          await createWorkOrder(`Enable wallet extras: ${selectedExtras.join(", ")}`);
                           alert("Work order created. (MVP)");
                         } catch (e) {
                           alert(e.message);
