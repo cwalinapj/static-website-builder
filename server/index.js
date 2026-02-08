@@ -7,6 +7,7 @@ const routes = {
   GET: new Map(),
   POST: new Map()
 };
+const DNS_RESOLVER_URL = process.env.DNS_RESOLVER_URL || "http://localhost:8054/resolve";
 
 function createResponse(res) {
   return {
@@ -118,6 +119,19 @@ app.get("/api/cloudflare/pages/projects", async (req, res) => {
   const token = decryptSecret(stored.tokenEnc);
   const data = await listPagesProjects(token, stored.accountId);
   res.json({ ok: true, projects: data.result });
+});
+
+app.get("/api/dns/resolve", async (req, res) => {
+  const { name } = req.query || {};
+  if (!name) return res.status(400).json({ error: "name required" });
+  const url = new URL(DNS_RESOLVER_URL);
+  url.searchParams.set("name", name);
+  const response = await fetch(url.toString());
+  if (!response.ok) {
+    return res.status(502).json({ error: "dns_resolve_failed" });
+  }
+  const data = await response.json();
+  return res.json({ ok: true, result: data });
 });
 
 const port = process.env.PORT || 8787;
