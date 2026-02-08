@@ -34,7 +34,7 @@ function readHistory() {
     return JSON.parse(fs.readFileSync(HISTORY_FILE, "utf8"));
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to parse publish history file (${detail}). Delete .builder/publish-history.json and retry.`);
+    throw new Error(`Failed to parse publish history file (${detail}). Delete ${HISTORY_FILE} and retry.`);
   }
 }
 

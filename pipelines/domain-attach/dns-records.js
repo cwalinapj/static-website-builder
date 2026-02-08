@@ -19,7 +19,7 @@ function readRecords() {
     return JSON.parse(fs.readFileSync(RECORDS_FILE, "utf8"));
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
-    throw new Error(`Failed to parse DNS records file (${detail}). Delete .builder/dns-records.json and retry.`);
+    throw new Error(`Failed to parse DNS records file (${detail}). Delete ${RECORDS_FILE} and retry.`);
   }
 }
 
