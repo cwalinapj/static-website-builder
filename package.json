@@ -5,7 +5,16 @@
   "scripts": {
     "dev": "concurrently \"npm:dev:server\" \"npm:dev:web\"",
     "dev:web": "vite",
-    "dev:server": "npm --prefix server run dev"
+    "dev:server": "npm --prefix server run dev",
+    "build": "vite build",
+    "lint": "npm run lint:server && npm run lint:cli && npm run lint:pipelines",
+    "lint:server": "node --check server/index.js && node --check server/cloudflare.js && node --check server/tokenStore.js && node --check server/crypto.js",
+    "lint:cli": "node --check bin/builder.js",
+    "lint:pipelines": "node --check pipelines/shared/errors.js && node --check pipelines/static-pages/deploy.js && node --check pipelines/static-pages/pages-client.js && node --check pipelines/domain-attach/attach.js && node --check pipelines/domain-attach/dns-records.js && node --check pipelines/domain-attach/verify-delegation.js",
+    "test": "node -e \"console.log('No tests configured')\""
+  },
+  "bin": {
+    "builder": "./bin/builder.js"
   },
   "dependencies": {
     "react": "^18.3.1",
