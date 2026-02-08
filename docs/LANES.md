@@ -18,7 +18,7 @@ The deploy flow is implemented in `pipelines/static-pages`. The client returns a
   - Domain is delegated to **ns1/ns2** (`DNS_NS1`/`DNS_NS2` overrides, defaults to `ns1.staticbuilder.dev` and
     `ns2.staticbuilder.dev`)
   - `www` CNAME points at `dns_target`
-  - Apex redirect points to `https://www.<domain>` for MVP
+  - Apex redirect points to `https://www.<domain>` for MVP (`APEX_REDIRECT_SCHEME` override)
 
 The attach flow is implemented in `pipelines/domain-attach`. It uses `DNS_RESOLVER_URL` to verify
 delegation and calls `DNS_API_URL` (when set) to upsert records. Without `DNS_API_URL`, it stores

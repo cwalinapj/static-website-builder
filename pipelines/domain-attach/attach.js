@@ -1,11 +1,13 @@
 import { verifyDelegation } from "./verify-delegation.js";
 import { upsertApexRedirect, upsertCnameRecord } from "./dns-records.js";
 
+const DEFAULT_REDIRECT_SCHEME = process.env.APEX_REDIRECT_SCHEME || "https";
+
 function stripWwwPrefix(domain) {
   return domain.replace(/^www\./i, "");
 }
 
-export async function attachDomain({ siteId, domain, dnsTarget } = {}) {
+export async function attachDomain({ siteId, domain, dnsTarget, redirectScheme = DEFAULT_REDIRECT_SCHEME } = {}) {
   if (!siteId) {
     throw new Error("siteId required");
   }
@@ -26,7 +28,7 @@ export async function attachDomain({ siteId, domain, dnsTarget } = {}) {
   const cnameRecord = await upsertCnameRecord({ name: wwwHost, target: dnsTarget });
   const redirectRecord = await upsertApexRedirect({
     domain: apexDomain,
-    target: `https://${wwwHost}`
+    target: `${redirectScheme}://${wwwHost}`
   });
 
   return {

@@ -28,7 +28,7 @@ builder attach-domain --site my-site --domain example.com
 
 `builder attach-domain` verifies delegation via `DNS_RESOLVER_URL` and creates:
 - `www.example.com` CNAME → `dns_target`
-- Apex redirect → `https://www.example.com`
+- Apex redirect → `https://www.example.com` (`APEX_REDIRECT_SCHEME` override)
 
 Set `DNS_API_URL` to point at your authoritative DNS API for record creation. If unset, records are
 stored locally under `.builder/` for MVP testing.

@@ -33,7 +33,8 @@ function readHistory() {
   try {
     return JSON.parse(fs.readFileSync(HISTORY_FILE, "utf8"));
   } catch (error) {
-    throw new Error("Failed to parse publish history file. Delete .builder/publish-history.json and retry.");
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to parse publish history file (${detail}). Delete .builder/publish-history.json and retry.`);
   }
 }
 
@@ -46,7 +47,7 @@ function normalizeLimit(value, fallback) {
   return Number.isFinite(value) && value > 0 ? value : fallback;
 }
 
-function getUtcDateKey(date = new Date()) {
+function getUTCDateKey(date = new Date()) {
   const utcDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
   return utcDate.toISOString().slice(0, 10);
 }
@@ -80,7 +81,7 @@ export async function deployStaticPages({
     throw new Error(`MVP limit exceeded: ${totalBytes} bytes (max ${maxTotalBytes}).`);
   }
 
-  const today = getUtcDateKey();
+  const today = getUTCDateKey();
   const history = readHistory();
   const siteHistory = history[siteId] || {};
   const publishCount = siteHistory[today] || 0;
