@@ -1,9 +1,9 @@
+import { randomUUID } from "node:crypto";
+
 const DEFAULT_PUBLIC_HOST = process.env.PAGES_PUBLIC_HOST || "pages.dev";
 
 function buildDeploymentId() {
-  const now = Date.now();
-  const suffix = Math.random().toString(36).slice(2, 8);
-  return `deploy_${now}_${suffix}`;
+  return `deploy_${randomUUID()}`;
 }
 
 export function createPagesClient({ publicHost = DEFAULT_PUBLIC_HOST } = {}) {

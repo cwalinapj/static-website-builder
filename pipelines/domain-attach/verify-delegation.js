@@ -35,7 +35,7 @@ function extractNsRecords(payload) {
 
 async function resolveNs(domain, resolverUrl) {
   if (!resolverUrl) {
-    throw new Error("DNS_RESOLVER_URL not configured");
+    throw new Error("DNS resolver URL not configured");
   }
   const url = new URL(resolverUrl);
   url.searchParams.set("name", domain);

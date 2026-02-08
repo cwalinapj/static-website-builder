@@ -48,8 +48,7 @@ function normalizeLimit(value, fallback) {
 }
 
 function getUTCDateKey(date = new Date()) {
-  const utcDate = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-  return utcDate.toISOString().slice(0, 10);
+  return date.toISOString().slice(0, 10);
 }
 
 export async function deployStaticPages({
