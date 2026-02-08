@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { createPagesClient } from "./pages-client.js";
+import { formatError } from "../shared/errors.js";
 
 const DEFAULT_MAX_PAGES = Number.parseInt(process.env.PAGES_MAX_PAGES || "5", 10);
 const DEFAULT_MAX_TOTAL_BYTES = Number.parseInt(process.env.PAGES_MAX_TOTAL_BYTES || `${5 * 1024 * 1024}`, 10);
@@ -33,7 +34,7 @@ function readHistory() {
   try {
     return JSON.parse(fs.readFileSync(HISTORY_FILE, "utf8"));
   } catch (error) {
-    const detail = error instanceof Error ? error.message : String(error);
+    const detail = formatError(error);
     throw new Error(`Failed to parse publish history file (${detail}). Delete ${HISTORY_FILE} and retry.`);
   }
 }
@@ -66,7 +67,7 @@ export async function deployStaticPages({
   }
 
   const files = listFiles(resolvedDist);
-  const pageCount = files.filter((file) => file.toLowerCase().endsWith(".html")).length;
+  const pageCount = files.filter((file) => /\.html$/i.test(file)).length;
   const totalBytes = files.reduce((sum, file) => sum + fs.statSync(file).size, 0);
 
   const maxPages = normalizeLimit(limits.maxPages, DEFAULT_MAX_PAGES);

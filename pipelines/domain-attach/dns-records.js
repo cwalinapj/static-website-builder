@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { formatError } from "../shared/errors.js";
 
 const STATE_DIR = process.env.BUILDER_STATE_DIR || path.join(process.cwd(), ".builder");
 const RECORDS_FILE = path.join(STATE_DIR, "dns-records.json");
@@ -18,7 +19,7 @@ function readRecords() {
   try {
     return JSON.parse(fs.readFileSync(RECORDS_FILE, "utf8"));
   } catch (error) {
-    const detail = error instanceof Error ? error.message : String(error);
+    const detail = formatError(error);
     throw new Error(`Failed to parse DNS records file (${detail}). Delete ${RECORDS_FILE} and retry.`);
   }
 }
@@ -42,8 +43,8 @@ async function upsertRecord(record) {
     try {
       data = await response.json();
     } catch (error) {
-      const detail = error instanceof Error ? error.message : String(error);
-      throw new Error(`dns_api_invalid_json: ${detail}`);
+      const detail = formatError(error);
+      throw new Error(`dns_api_invalid_json (status ${response.status}): ${detail}`);
     }
     return data?.result || data;
   }
