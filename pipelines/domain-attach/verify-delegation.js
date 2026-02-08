@@ -3,7 +3,7 @@ const DEFAULT_NS = [
   process.env.DNS_NS2 || "ns2.staticbuilder.dev"
 ];
 
-const DNS_RESOLVER_URL = process.env.DNS_RESOLVER_URL || "";
+const DEFAULT_DNS_RESOLVER_URL = process.env.DNS_RESOLVER_URL || "";
 
 function normalizeName(value) {
   return value.toLowerCase().replace(/\.$/, "");
@@ -33,11 +33,11 @@ function extractNsRecords(payload) {
   return records;
 }
 
-async function resolveNs(domain, resolverUrl) {
-  if (!resolverUrl) {
+async function resolveNs(domain, dnsResolverUrl) {
+  if (!dnsResolverUrl) {
     throw new Error("DNS resolver URL not configured");
   }
-  const url = new URL(resolverUrl);
+  const url = new URL(dnsResolverUrl);
   url.searchParams.set("name", domain);
   url.searchParams.set("type", "NS");
   const response = await fetch(url.toString());
@@ -48,12 +48,12 @@ async function resolveNs(domain, resolverUrl) {
   return extractNsRecords(payload);
 }
 
-export async function verifyDelegation(domain, { expectedNameservers = DEFAULT_NS, resolverUrl = DNS_RESOLVER_URL } = {}) {
+export async function verifyDelegation(domain, { expectedNameservers = DEFAULT_NS, dnsResolverUrl = DEFAULT_DNS_RESOLVER_URL } = {}) {
   if (!domain) {
     throw new Error("domain required");
   }
   const expected = expectedNameservers.map(normalizeName);
-  const actual = await resolveNs(domain, resolverUrl);
+  const actual = await resolveNs(domain, dnsResolverUrl);
   const missing = expected.filter((ns) => !actual.includes(ns));
 
   return {

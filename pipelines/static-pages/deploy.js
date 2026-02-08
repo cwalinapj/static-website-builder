@@ -48,8 +48,27 @@ function normalizeLimit(value, fallback) {
   return Number.isFinite(value) && value > 0 ? value : fallback;
 }
 
-function getUTCDateKey(date = new Date()) {
+function getUTCDateString(date = new Date()) {
   return date.toISOString().slice(0, 10);
+}
+
+function formatBytes(bytes) {
+  if (!Number.isFinite(bytes)) {
+    return String(bytes);
+  }
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+  const kb = bytes / 1024;
+  if (kb < 1024) {
+    return `${kb.toFixed(1)} KB`;
+  }
+  const mb = kb / 1024;
+  if (mb < 1024) {
+    return `${mb.toFixed(1)} MB`;
+  }
+  const gb = mb / 1024;
+  return `${gb.toFixed(1)} GB`;
 }
 
 export async function deployStaticPages({
@@ -75,19 +94,19 @@ export async function deployStaticPages({
   const maxPublishesPerDay = normalizeLimit(limits.maxPublishesPerDay, DEFAULT_MAX_PUBLISHES_PER_DAY);
 
   if (pageCount > maxPages) {
-    throw new Error(`MVP limit exceeded: ${pageCount} pages (max ${maxPages}).`);
+    throw new Error(`Maximum page count exceeded: ${pageCount} pages (max ${maxPages}).`);
   }
   if (totalBytes > maxTotalBytes) {
-    throw new Error(`MVP limit exceeded: ${totalBytes} bytes (max ${maxTotalBytes}).`);
+    throw new Error(`Maximum size exceeded: ${formatBytes(totalBytes)} (max ${formatBytes(maxTotalBytes)}).`);
   }
 
-  const today = getUTCDateKey();
+  const today = getUTCDateString();
   const history = readHistory();
   const siteHistory = history[siteId] || {};
   const publishCount = siteHistory[today] || 0;
 
   if (publishCount >= maxPublishesPerDay) {
-    throw new Error(`MVP limit exceeded: ${publishCount} publishes today (max ${maxPublishesPerDay}).`);
+    throw new Error(`Daily publish limit exceeded: ${publishCount} publishes today (max ${maxPublishesPerDay}).`);
   }
 
   const client = createPagesClient();
