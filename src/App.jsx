@@ -1,4 +1,3 @@
-cat > src/App.jsx <<'EOF'
 import React, { useMemo, useState } from "react";
 
 function buildSrcDoc(files) {
@@ -327,7 +326,7 @@ function Finalize({ value, onChange, onDone }) {
 }
 
 export default function App() {
-  const [step, setStep] = useState("setup"); // setup -> serp -> pick -> contact -> build -> finalize -> done
+  const [step, setStep] = useState("setup");
 
   const [setup, setSetup] = useState({
     businessType: "",
@@ -339,19 +338,10 @@ export default function App() {
   const [serp, setSerp] = useState(null);
   const [winnerUrl, setWinnerUrl] = useState("");
   const [contact, setContact] = useState({ address: "", phone: "", cell: "", email: "" });
-  const [walletExtras, setWalletExtras] = useState({
-    membership: false,
-    referrals: false,
-    receipts: false,
-    cryptoPayments: false
-  });
-
   const [files, setFiles] = useState(null);
   const srcDoc = useMemo(() => buildSrcDoc(files), [files]);
-
   const [feedback, setFeedback] = useState("");
   const [busy, setBusy] = useState(false);
-
   const [finalize, setFinalize] = useState({
     deliveryHours: 24,
     domainChoice: "subdomain_free",
@@ -363,17 +353,6 @@ export default function App() {
     receipts: false,
     cryptoPayments: false
   });
-
-  async function createWorkOrder(requestText) {
-    const r = await fetch("/api/work-order", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ requestText })
-    });
-    const data = await r.json();
-    if (!r.ok) throw new Error(data.error || "Work order failed");
-    return data.workOrder;
-  }
 
   async function runSerp() {
     setBusy(true);
@@ -456,7 +435,6 @@ export default function App() {
 
   return (
     <div style={{ height: "100vh", display: "grid", gridTemplateColumns: "1fr 1fr" }}>
-      {/* LEFT */}
       <div style={{ display: "grid", gridTemplateRows: "auto 1fr", borderRight: "1px solid #e5e7eb" }}>
         <div style={{ padding: 12, borderBottom: "1px solid #e5e7eb", fontWeight: 900 }}>
           Static Builder <span style={{ marginLeft: 8, ...pill(step) }}>{step}</span>
@@ -593,13 +571,13 @@ export default function App() {
                     <button
                       style={btn}
                       onClick={async () => {
-                        const selectedExtras = Object.entries(walletExtras).filter(([, v]) => v).map(([k]) => k);
-                        if (selectedExtras.length === 0) {
+                        const selected = Object.entries(walletExtras).filter(([, v]) => v).map(([k]) => k);
+                        if (selected.length === 0) {
                           alert("No wallet extras selected.");
                           return;
                         }
                         try {
-                          await createWorkOrder(`Enable wallet extras: ${selectedExtras.join(", ")}`);
+                          await createWorkOrder(`Enable wallet extras: ${selected.join(", ")}`);
                           alert("Work order created. (MVP)");
                         } catch (e) {
                           alert(e.message);
@@ -616,7 +594,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* RIGHT */}
       <div style={{ display: "grid", gridTemplateRows: "auto 1fr" }}>
         <div style={{ padding: 12, borderBottom: "1px solid #e5e7eb", fontWeight: 900 }}>
           {step === "build" || step === "finalize" || step === "done" ? "Live Preview" : "Setup"}
@@ -649,4 +626,3 @@ export default function App() {
     </div>
   );
 }
-EOF
