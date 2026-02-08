@@ -1,7 +1,7 @@
 import { verifyDelegation } from "./verify-delegation.js";
 import { upsertApexRedirect, upsertCnameRecord } from "./dns-records.js";
 
-function normalizeDomain(domain) {
+function stripWwwPrefix(domain) {
   return domain.replace(/^www\./i, "");
 }
 
@@ -16,7 +16,7 @@ export async function attachDomain({ siteId, domain, dnsTarget } = {}) {
     throw new Error("dnsTarget required");
   }
 
-  const apexDomain = normalizeDomain(domain);
+  const apexDomain = stripWwwPrefix(domain);
   const delegation = await verifyDelegation(apexDomain);
   if (!delegation.ok) {
     throw new Error(`Domain not delegated to required nameservers: ${delegation.missing.join(", ")}`);

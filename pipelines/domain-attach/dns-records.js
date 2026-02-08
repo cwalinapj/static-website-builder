@@ -15,7 +15,11 @@ function readRecords() {
   if (!fs.existsSync(RECORDS_FILE)) {
     return [];
   }
-  return JSON.parse(fs.readFileSync(RECORDS_FILE, "utf8"));
+  try {
+    return JSON.parse(fs.readFileSync(RECORDS_FILE, "utf8"));
+  } catch (error) {
+    throw new Error("Failed to parse DNS records file. Delete .builder/dns-records.json and retry.");
+  }
 }
 
 function writeRecords(records) {
