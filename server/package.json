@@ -3,6 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "node index.js"
+    "dev": "node index.js",
+    "build": "node --check index.js",
+    "lint": "node --check index.js && node --check cloudflare.js && node --check tokenStore.js && node --check crypto.js",
+    "test": "node -e \"console.log('No server tests configured')\""
   }
 }
