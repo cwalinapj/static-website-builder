@@ -12,7 +12,7 @@ The command enforces MVP limits (5 pages, 5 MB total, 3 publishes/day). You can 
 ```bash
 PAGES_MAX_PAGES=5 \
 PAGES_MAX_TOTAL_BYTES=5242880 \
-PAGES_PUBLISHES_PER_DAY=3 \
+PAGES_MAX_PUBLISHES_PER_DAY=3 \
 builder publish --site my-site --lane pages
 ```
 

@@ -6,7 +6,7 @@
 - **MVP limits:**
   - Max pages: **5** HTML files (override via `PAGES_MAX_PAGES`)
   - Max total size: **5 MB** (override via `PAGES_MAX_TOTAL_BYTES`)
-  - Max publishes per day: **3** per site (override via `PAGES_PUBLISHES_PER_DAY`)
+  - Max publishes per day: **3** per site (override via `PAGES_MAX_PUBLISHES_PER_DAY`)
 
 The deploy flow is implemented in `pipelines/static-pages`. The client returns a Pages-style hostname
 (`PAGES_PUBLIC_HOST`, default `pages.dev`) and a deployment id for downstream DNS attachment.

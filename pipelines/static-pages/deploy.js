@@ -5,7 +5,10 @@ import { formatError } from "../shared/errors.js";
 
 const DEFAULT_MAX_PAGES = Number.parseInt(process.env.PAGES_MAX_PAGES || "5", 10);
 const DEFAULT_MAX_TOTAL_BYTES = Number.parseInt(process.env.PAGES_MAX_TOTAL_BYTES || `${5 * 1024 * 1024}`, 10);
-const DEFAULT_MAX_PUBLISHES_PER_DAY = Number.parseInt(process.env.PAGES_PUBLISHES_PER_DAY || "3", 10);
+const DEFAULT_MAX_PUBLISHES_PER_DAY = Number.parseInt(
+  process.env.PAGES_MAX_PUBLISHES_PER_DAY || process.env.PAGES_PUBLISHES_PER_DAY || "3",
+  10
+);
 
 const STATE_DIR = process.env.BUILDER_STATE_DIR || path.join(process.cwd(), ".builder");
 const HISTORY_FILE = path.join(STATE_DIR, "publish-history.json");
@@ -106,7 +109,9 @@ export async function deployStaticPages({
   const publishCount = siteHistory[today] || 0;
 
   if (publishCount >= maxPublishesPerDay) {
-    throw new Error(`Daily publish limit exceeded: ${publishCount} publishes today (max ${maxPublishesPerDay}).`);
+    throw new Error(
+      `Daily publish limit exceeded for ${siteId}: ${publishCount} publishes today (max ${maxPublishesPerDay}).`
+    );
   }
 
   const client = createPagesClient();

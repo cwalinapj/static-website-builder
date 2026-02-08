@@ -42,7 +42,7 @@ async function resolveNs(domain, dnsResolverUrl) {
   url.searchParams.set("type", "NS");
   const response = await fetch(url.toString());
   if (!response.ok) {
-    throw new Error(`dns_resolve_failed: ${response.status}`);
+    throw new Error(`DNS resolution failed with status ${response.status}`);
   }
   const payload = await response.json();
   return extractNsRecords(payload);

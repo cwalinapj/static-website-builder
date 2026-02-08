@@ -37,14 +37,16 @@ async function upsertRecord(record) {
       body: JSON.stringify(record)
     });
     if (!response.ok) {
-      throw new Error(`DNS API request failed with status ${response.status}`);
+      throw new Error(`DNS API request failed for ${record.type} ${record.name} with status ${response.status}`);
     }
     let data;
     try {
       data = await response.json();
     } catch (error) {
       const detail = formatError(error);
-      throw new Error(`DNS API invalid JSON response (status ${response.status}): ${detail}`);
+      throw new Error(
+        `DNS API invalid JSON response for ${record.type} ${record.name} (status ${response.status}): ${detail}`
+      );
     }
     return data?.result || data;
   }
